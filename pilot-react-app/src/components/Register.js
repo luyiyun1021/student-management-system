@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, Input, Button, Typography } from "@material-tailwind/react";
+import { registerUser } from "../services/api";
 
 const Register = () => {
   const [username, setUsername] = useState('');
@@ -9,15 +10,27 @@ const Register = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-    // 模拟注册逻辑
+    
     if (password !== confirmPassword) {
       setError('密码和确认密码不一致');
-    } else {
-      // 模拟注册成功逻辑
-      // localStorage.setItem('auth', true);
-      navigate('/login'); // 跳转到数据总览页面
+      return;
+    }
+
+    try {
+      // 发送注册请求到后端
+      const response = await registerUser(username, password);
+
+      const data = await response.json();
+
+      if (response.ok) {
+        navigate('/login'); // 注册成功，跳转到登录页面
+      } else {
+        setError(data.detail || '注册失败');
+      }
+    } catch (err) {
+      setError('网络错误，请稍后再试');
     }
   };
 
@@ -57,11 +70,7 @@ const Register = () => {
             />
           </div>
           {error && (
-            <Typography
-              color="red"
-              className="text-center mt-2 mb-4"
-              style={{ position: 'relative' }}
-            >
+            <Typography color="red" className="text-center mt-2 mb-4">
               {error}
             </Typography>
           )}

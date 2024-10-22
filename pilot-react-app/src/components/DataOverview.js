@@ -13,8 +13,8 @@ const DataOverview = () => {
 
   useEffect(() => {
     const loadData = async () => {
-      const data = await fetchOverviewData();
-      setChartData(data); // 成功获取数据后更新状态
+      const data = await fetchOverviewData(); // 获取数据
+      setChartData(data); // 将数据存储到 state
     };
     loadData();
   }, []);

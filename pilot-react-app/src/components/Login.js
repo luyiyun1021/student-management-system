@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, Input, Button, Typography } from "@material-tailwind/react";
+import { loginUser } from "../services/api";
+
 
 const Login = ({ setIsAuthenticated }) => {
   const [username, setUsername] = useState('');
@@ -8,15 +10,24 @@ const Login = ({ setIsAuthenticated }) => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // 模拟登录逻辑
-    if (username === 'admin' && password === 'admin123') {
-      localStorage.setItem('auth', true); // 模拟将用户状态存储在 localStorage 中
-      setIsAuthenticated(true);
-      navigate('/'); // 跳转到数据总览页面
-    } else {
-      setError('用户名或密码错误');
+    try {
+      // 发送登录请求到后端
+      const response = await loginUser(username, password);
+      const data = await response.json();
+      
+      if (response.ok) {
+        // 在本地存储登录信息
+        localStorage.setItem('username', username);
+        localStorage.setItem('auth', 'true');
+        setIsAuthenticated(true);
+        navigate('/'); // 跳转到数据总览页面
+      } else {
+        setError(data.detail || '用户名或密码错误');
+      }
+    } catch (err) {
+      setError('网络错误，请稍后再试');
     }
   };
 
@@ -46,11 +57,7 @@ const Login = ({ setIsAuthenticated }) => {
             />
           </div>
           {error && (
-            <Typography
-              color="red"
-              className="text-center mt-2 mb-4"
-              style={{ position: 'relative' }}
-            >
+            <Typography color="red" className="text-center mt-2 mb-4">
               {error}
             </Typography>
           )}

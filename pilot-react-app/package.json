@@ -2,6 +2,7 @@
   "name": "pilot-react-app",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://localhost:8000",
   "dependencies": {
     "@faker-js/faker": "^9.0.3",
     "@heroicons/react": "^2.1.5",

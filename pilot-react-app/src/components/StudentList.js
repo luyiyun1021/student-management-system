@@ -37,9 +37,9 @@ const StudentList = () => {
       <tr key={student.id} className={student.isQualified ? "" : "bg-red-50"} onClick={() => handleStudentClick(student.id)}>
         <td className="p-3 text-center cursor-pointer">{index + 1}</td>
         <td className="p-3 text-left cursor-pointer">{student.name}</td>
-        <td className="p-3 text-center">{student.heartRate}</td>
-        <td className="p-3 text-center">{student.skinConductance}</td>
-        <td className="p-3 text-center">{student.brainWave}</td>
+        <td className="p-3 text-center">{student.averageHeartRate}</td>
+        <td className="p-3 text-center">{student.averageSkinConductance}</td>
+        <td className="p-3 text-center">{student.averageBrainWave}</td>
         <td className="p-3 text-center">{student.stepCount}</td>
         <td className="p-3 text-center">{student.score}</td>
         <td className={`p-3 text-center ${!student.isQualified ? "text-red-500" : ""}`}>

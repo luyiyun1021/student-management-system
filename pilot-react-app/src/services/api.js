@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker';
+import axios from 'axios';
 
 // 登录请求
 export const loginUser = async (username, password) => {
@@ -86,3 +87,35 @@ export const fetchStudentDetail = async (id) => {
   }
 };
 
+export const uploadFile = async (file) => {
+  const formData = new FormData();
+  const username = localStorage.getItem('username'); // 从localStorage中获取username
+  formData.append('username', username);
+  formData.append('file', file);
+
+  try {
+    const response = await axios.post('/upload/', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response ? error.response.data : new Error('网络错误');
+  }
+};
+
+export const downloadFiles = async () => {
+  const username = localStorage.getItem('username'); // 从localStorage中获取username
+
+  try {
+    const response = await axios.get('/download/', {
+      params: { username },
+      responseType: 'blob', // 接收二进制数据
+    });
+
+    return response.data;
+  } catch (error) {
+    throw error.response ? error.response.data : new Error('网络错误');
+  }
+};

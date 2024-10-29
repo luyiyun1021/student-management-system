@@ -1,47 +1,66 @@
 import React, { useState } from 'react';
 import { Card, CardBody, Button, Typography, Progress } from "@material-tailwind/react";
+import { uploadFile, downloadFiles } from '../services/api';
 
 const ImportExport = () => {
   const [file, setFile] = useState(null);
-  const [uploadProgress, setUploadProgress] = useState(0); // 上传进度状态
-  const [isUploading, setIsUploading] = useState(false); // 是否在上传中
-  const fileInputRef = React.createRef(); // 引用隐藏的 file input
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
+  const [downloadError, setDownloadError] = useState('');
+  const fileInputRef = React.createRef();
 
-  // 模拟文件上传进度
-  const simulateUpload = () => {
-    setIsUploading(true);
-    setUploadProgress(0);
-
-    const interval = setInterval(() => {
-      setUploadProgress((prevProgress) => {
-        if (prevProgress >= 100) {
-          clearInterval(interval);
-          setIsUploading(false); // 上传完成
-          return 100;
-        }
-        return prevProgress + 5; // 模拟每次增加5%
-      });
-    }, 100); // 每100毫秒更新一次进度
+  const isValidFileName = (fileName) => {
+    const regex = /^[\u4e00-\u9fa5]+-(男|女)\.zip$/;
+    return regex.test(fileName);
   };
 
-  const handleFileUpload = (event) => {
-    setFile(event.target.files[0]);
-    simulateUpload(); // 开始模拟上传文件
+  const handleFileUpload = async (event) => {
+    const selectedFile = event.target.files[0];
+    if (selectedFile) {
+      if (!isValidFileName(selectedFile.name)) {
+        setUploadError('文件名格式不正确，必须为“名字-性别.zip”');
+        setFile(null);
+        return;
+      }
+      
+      setUploadError('');
+      setFile(selectedFile);
+      setIsUploading(true);
+      setUploadProgress(0);
+
+      try {
+        const response = await uploadFile(selectedFile);
+
+        if (response.message) {
+          setIsUploading(false);
+          setUploadProgress(100);
+        }
+      } catch (error) {
+        setIsUploading(false);
+        setUploadError(error.detail || '上传失败，请稍后再试');
+      }
+    }
   };
 
   const triggerFileUpload = () => {
-    fileInputRef.current.click(); // 触发隐藏的 input 点击事件
+    fileInputRef.current.click();
   };
 
-  const handleFileDownload = () => {
-    // 模拟文件导出
-    const data = '这是一些导出的数据...';
-    const blob = new Blob([data], { type: 'text/plain' });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'exported_data.txt';
-    link.click();
+  const handleFileDownload = async () => {
+    setDownloadError('');
+    try {
+      const blob = await downloadFiles();
+      const url = window.URL.createObjectURL(new Blob([blob]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `${localStorage.getItem('username')}_files.zip`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      setDownloadError(error.detail || '下载失败，请稍后再试');
+    }
   };
 
   return (
@@ -52,29 +71,28 @@ const ImportExport = () => {
             导入导出功能
           </Typography>
 
-          {/* 左右布局：上传和导出 */}
           <div className="flex flex-col md:flex-row justify-center items-start space-y-6 md:space-y-0 md:space-x-6">
-
-            {/* 文件上传部分 (左侧) */}
+            {/* 文件上传部分 */}
             <div className="w-full md:w-1/2 flex flex-col items-center">
               <Typography variant="h6" className="mb-4">
                 上传数据
               </Typography>
-
-              {/* 隐藏文件上传按钮 */}
               <input
                 type="file"
                 ref={fileInputRef}
                 onChange={handleFileUpload}
                 style={{ display: 'none' }}
               />
-
-              {/* 自定义的上传按钮 */}
               <Button color="blue" onClick={triggerFileUpload} className="mb-4 w-48" disabled={isUploading}>
                 {isUploading ? '正在上传...' : '选择文件'}
               </Button>
 
-              {/* 上传进度条 */}
+              {uploadError && (
+                <Typography color="red" className="text-center mt-2 mb-4">
+                  {uploadError}
+                </Typography>
+              )}
+
               {isUploading && (
                 <div className="w-full mb-4">
                   <Progress value={uploadProgress} color="blue" />
@@ -82,7 +100,6 @@ const ImportExport = () => {
                 </div>
               )}
 
-              {/* 上传完成后显示已选择文件 */}
               {file && !isUploading && (
                 <Typography variant="small" className="mt-2 text-gray-600">
                   已上传文件：<span className="font-bold">{file.name}</span>
@@ -90,15 +107,19 @@ const ImportExport = () => {
               )}
             </div>
 
-            {/* 文件导出部分 (右侧) */}
+            {/* 文件导出部分 */}
             <div className="w-full md:w-1/2 flex flex-col items-center">
               <Typography variant="h6" className="mb-4">
                 导出数据
               </Typography>
-
               <Button color="blue" onClick={handleFileDownload} className="w-48">
                 导出数据
               </Button>
+              {downloadError && (
+                <Typography color="red" className="text-center mt-2">
+                  {downloadError}
+                </Typography>
+              )}
             </div>
           </div>
         </CardBody>

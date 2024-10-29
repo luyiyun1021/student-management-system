@@ -52,18 +52,6 @@ def upload_file(request):
 
     data_file = DataFile.objects.create(user=user, file=file)
     return Response({'message': '文件上传成功', 'file_id': data_file.id}, status=status.HTTP_201_CREATED)
-
-@api_view(['GET'])
-def list_user_files(request):
-    username = request.GET.get('username')
-
-    try:
-        user = User.objects.get(username=username)
-        data_files = user.data_files.all()
-        files = [{'id': df.id, 'filename': df.file.name, 'uploaded_at': df.uploaded_at} for df in data_files]
-        return Response(files, status=status.HTTP_200_OK)
-    except User.DoesNotExist:
-        return Response({'detail': '用户不存在'}, status=status.HTTP_404_NOT_FOUND)
     
 # 下载文件
 # 下载用户所有的压缩包文件
@@ -97,7 +85,19 @@ def download_files(request):
 
     except User.DoesNotExist:
         return Response({'detail': '用户不存在'}, status=status.HTTP_404_NOT_FOUND)
+    
+@api_view(['GET'])
+def list_user_files(request):
+    username = request.GET.get('username')
 
+    try:
+        user = User.objects.get(username=username)
+        data_files = user.data_files.all()
+        files = [{'id': df.id, 'filename': df.file.name, 'uploaded_at': df.uploaded_at} for df in data_files]
+        return Response(files, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({'detail': '用户不存在'}, status=status.HTTP_404_NOT_FOUND)
+    
 # 数据总览视图 (返回mock数据)
 @api_view(['GET'])
 def data_overview(request):

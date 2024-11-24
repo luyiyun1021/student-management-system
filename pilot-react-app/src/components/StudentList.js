@@ -11,7 +11,7 @@ import {
 
 const StudentList = () => {
   const [students, setStudents] = useState([]);
-  const [sortDimension, setSortDimension] = useState("score"); // 默认按综合评分排序
+  const [sortDimension, setSortDimension] = useState("name"); // 默认按综合评分排序
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,20 +33,21 @@ const StudentList = () => {
     setStudents(sortedStudents);
   };
 
-  const handleStudentClick = (id) => {
-    navigate(`/students/${id}`);
+  const handleStudentClick = (name) => {
+    const encodedName = encodeURIComponent(name);
+    navigate(`/students/${encodedName}`);
   };
 
   const renderStudentTable = () => {
     return students.map((student, index) => (
       <tr
         key={student.id}
-        className={student.isQualified ? "" : "bg-red-50"}
-        onClick={() => handleStudentClick(student.id)}
+        className="cursor-pointer hover:bg-gray-100" // 添加悬停效果
+        onClick={() => handleStudentClick(student.name)}
       >
-        <td className="p-3 text-center cursor-pointer">{index + 1}</td>
-        <td className="p-3 text-left cursor-pointer">{student.name}</td>
-        <td className="p-3 text-center">{student.averageSkinConductance}</td>
+        <td className="p-3 text-center">{index + 1}</td>
+        <td className="p-3 text-center">{student.name}</td>
+        {/* <td className="p-3 text-center">{student.averageSkinConductance}</td>
         <td className="p-3 text-center">{student.skinConductanceFluctuation}</td>
         <td className="p-3 text-center">{student.averageMuscleActivity}</td>
         <td className="p-3 text-center">{student.muscleActivityFluctuation}</td>
@@ -55,53 +56,53 @@ const StudentList = () => {
         <td className="p-3 text-center">{student.score}</td>
         <td className={`p-3 text-center ${!student.isQualified ? "text-red-500" : ""}`}>
           {!student.isQualified ? "不合格" : "合格"}
-        </td>
+        </td> */}
       </tr>
     ));
   };
 
   return (
     <div className="max-w-7xl mx-auto p-6">
-      <Card>
-        <CardBody>
+      <Card className="shadow-md">
+        <CardBody className="flex flex-col items-center">
           <Typography variant="h4" color="blue-gray" className="mb-4 text-center">
             学员资料库
           </Typography>
 
-          <div className="flex justify-end items-center mb-6">
+          <div className="flex justify-end items-center mb-6 w-full">
             <div className="w-60">
               <Select
                 label="选择排序维度"
                 value={sortDimension}
-                onChange={(e) => handleSort(e)} // 保证设置排序维度
+                onChange={(e) => handleSort(e)}
                 className="w-full"
               >
                 <Option value="name">姓名</Option>
-                <Option value="score">综合评分</Option>
+                {/* <Option value="score">综合评分</Option>
                 <Option value="averageSkinConductance">平均皮电</Option>
                 <Option value="skinConductanceFluctuation">皮电波动值</Option>
                 <Option value="averageMuscleActivity">平均肌肉电</Option>
                 <Option value="muscleActivityFluctuation">肌肉电波动值</Option>
                 <Option value="averageTemperature">平均体温</Option>
-                <Option value="temperatureFluctuation">体温波动值</Option>
+                <Option value="temperatureFluctuation">体温波动值</Option> */}
               </Select>
             </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+          <div className="overflow-x-auto w-full">
+            <table className="w-full text-center border-collapse">
               <thead>
                 <tr>
-                  <th className="p-3 text-center">序号</th>
-                  <th className="p-3 text-left">姓名</th>
-                  <th className="p-3 text-center">平均皮电</th>
+                  <th className="p-3 border-b border-gray-200">序号</th>
+                  <th className="p-3 border-b border-gray-200">姓名</th>
+                  {/* <th className="p-3 text-center">平均皮电</th>
                   <th className="p-3 text-center">皮电波动</th>
                   <th className="p-3 text-center">平均肌电</th>
                   <th className="p-3 text-center">肌电波动</th>
                   <th className="p-3 text-center">平均体温</th>
                   <th className="p-3 text-center">体温波动</th>
                   <th className="p-3 text-center">综合评分</th>
-                  <th className="p-3 text-center">状态</th>
+                  <th className="p-3 text-center">状态</th> */}
                 </tr>
               </thead>
               <tbody>{renderStudentTable()}</tbody>

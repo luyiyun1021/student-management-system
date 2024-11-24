@@ -46,15 +46,18 @@ export const fetchOverviewData = async () => {
 
 export const fetchStudents = async () => {
   try {
-    const response = await fetch('/students/', {
-      method: 'GET',
+    const username = localStorage.getItem('username'); // 从localStorage中获取username
+
+    const response = await axios.get('/students/', {
+      params: { username }, // 通过 params 来发送查询参数
       headers: {
         'Content-Type': 'application/json',
       },
     });
 
-    if (response.ok) {
-      return await response.json(); // 返回 JSON 数据
+    // 判断请求是否成功，状态码 200-299 为成功
+    if (response.status >= 200 && response.status < 300) {
+      return response.data; // 返回 JSON 数据
     } else {
       throw new Error('获取学生数据失败');
     }
@@ -66,26 +69,29 @@ export const fetchStudents = async () => {
 
   
 // 从后端获取特定学生的详细数据
-export const fetchStudentDetail = async (id) => {
+export const fetchStudentDetail = async (name) => {
   try {
-    const response = await fetch(`/students/${id}/`, {
-      method: 'GET',
+    const username = localStorage.getItem('username'); // 从localStorage中获取username
+
+    const response = await axios.get(`/students/${name}/`, {
+      params: { username }, // 通过 params 发送查询参数
       headers: {
         'Content-Type': 'application/json',
       },
     });
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch student data for ID: ${id}`);
+    // 判断请求是否成功，状态码 200-299 为成功
+    if (response.status >= 200 && response.status < 300) {
+      return response.data; // 返回 JSON 数据
+    } else {
+      throw new Error(`获取学生 ${name} 的详细数据失败`);
     }
-
-    const data = await response.json();
-    return data;
   } catch (error) {
-    console.error('Error fetching student details:', error);
+    console.error('获取学生详细信息时发生错误:', error);
     return null; // 返回 null 或者处理错误
   }
 };
+
 
 export const uploadFile = async (file) => {
   const formData = new FormData();

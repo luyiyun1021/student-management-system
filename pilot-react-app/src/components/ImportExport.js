@@ -11,7 +11,7 @@ const ImportExport = () => {
   const fileInputRef = React.createRef();
 
   const isValidFileName = (fileName) => {
-    const regex = /^[\u4e00-\u9fa5]+-(男|女)\.zip$/;
+    const regex = /^[\u4e00-\u9fa5]+_(男|女)\.zip$/;
     return regex.test(fileName);
   };
 
@@ -19,7 +19,7 @@ const ImportExport = () => {
     const selectedFile = event.target.files[0];
     if (selectedFile) {
       if (!isValidFileName(selectedFile.name)) {
-        setUploadError('文件名格式不正确，必须为“名字-性别.zip”');
+        setUploadError('文件名格式不正确，必须为“名字_性别.zip”');
         setFile(null);
         return;
       }

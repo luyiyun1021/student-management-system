@@ -20,9 +20,9 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login setIsAuthenticated={setIsAuthenticated} />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/" element={<ProtectedRoute><DataOverview /></ProtectedRoute>} />
+          <Route path="/" element={<ProtectedRoute><StudentList /></ProtectedRoute>} />
           <Route path="/students" element={<ProtectedRoute><StudentList /></ProtectedRoute>} />
-          <Route path="/students/:id" element={<ProtectedRoute><StudentDetail /></ProtectedRoute>} />
+          <Route path="/students/:name" element={<ProtectedRoute><StudentDetail /></ProtectedRoute>} />
           <Route path="/import-export" element={<ProtectedRoute><ImportExport /></ProtectedRoute>} />
         </Routes>
       </div>

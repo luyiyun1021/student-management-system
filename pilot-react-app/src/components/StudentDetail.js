@@ -6,14 +6,33 @@ import { Card, CardBody, Typography } from "@material-tailwind/react";
 const StudentDetail = () => {
   const { name } = useParams();
   const [studentData, setStudentData] = useState(null);
+  const [error, setError] = useState(null); // 添加错误状态
 
   useEffect(() => {
     const loadStudentDetail = async () => {
-      const data = await fetchStudentDetail(name);
-      setStudentData(data);
+      try {
+        const data = await fetchStudentDetail(name);
+        if (data) {
+          setStudentData(data);
+        } else {
+          setError('未能获取到学生数据');
+        }
+      } catch (err) {
+        setError(err.message); // 设置错误信息
+      }
     };
     loadStudentDetail();
   }, [name]);
+
+  if (error) {
+    return (
+      <div className="text-center mt-8">
+        <Typography variant="h5" color="red">
+          错误: {error}
+        </Typography>
+      </div>
+    );
+  }
 
   if (!studentData) {
     return <p className="text-center">加载中...</p>;

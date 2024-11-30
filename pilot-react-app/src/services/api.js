@@ -87,10 +87,18 @@ export const fetchStudentDetail = async (name) => {
       throw new Error(`获取学生 ${name} 的详细数据失败`);
     }
   } catch (error) {
-    console.error('获取学生详细信息时发生错误:', error);
-    return null; // 返回 null 或者处理错误
+    if (error.response) {
+      // 后端返回了响应但状态码非2xx
+      console.error(`后端错误: ${error.response.data.detail}`);
+      throw new Error(error.response.data.detail || '获取学生详细信息时发生未知错误');
+    } else {
+      // 网络错误或其他问题
+      console.error('网络错误或未知错误:', error.message);
+      throw new Error('无法连接到服务器，请检查网络连接或稍后重试');
+    }
   }
 };
+
 
 
 export const uploadFile = async (file) => {

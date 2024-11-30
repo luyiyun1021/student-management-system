@@ -127,7 +127,6 @@ def data_overview(request):
 #     else:
 #         return Response({'detail': '学生未找到'}, status=status.HTTP_404_NOT_FOUND)
 
-# 学生信息列表视图 
 @api_view(['GET'])
 def students_list(request):
     username = request.query_params.get('username')
@@ -143,10 +142,10 @@ def students_list(request):
 
             # 检查是否是符合格式的 zip 文件
             if file_name.endswith('.zip') and '_' in file_name:
-                student_info = file_name.split('_')  # 假设格式为 "名字_性别.zip"
-                if len(student_info) == 2 and student_info[1].endswith('.zip'):
+                student_info = file_name.split('_')  # 假设格式为 "名字_性别_随机后缀.zip"
+                if len(student_info) >= 2 and student_info[1] in ['男', '女']:
                     name = student_info[0]
-                    gender = student_info[1].replace('.zip', '')  # 提取性别
+                    gender = student_info[1]
                     students_info.append({
                         'id': len(students_info) + 1,  # 生成唯一 ID
                         'name': name,
@@ -159,7 +158,7 @@ def students_list(request):
     except User.DoesNotExist:
         return Response({'detail': '用户不存在'}, status=status.HTTP_404_NOT_FOUND)
 
-# 学生详细信息视图 
+
 @api_view(['GET'])
 def student_detail(request, name):
     username = request.query_params.get('username')  # 从查询参数获取用户名
@@ -170,23 +169,21 @@ def student_detail(request, name):
         data_files = DataFile.objects.filter(user=user)  # 获取该用户的所有数据文件
 
         if not data_files:
-            print("No files found for user.")
             return Response({'detail': '用户没有上传任何文件'}, status=status.HTTP_404_NOT_FOUND)
 
         # 遍历数据文件，匹配名字
         for data_file in data_files:
             file_name = os.path.basename(data_file.file.name)
-            print(f"Checking file: {file_name}")  # 调试日志
 
+            # 分割文件名，忽略后缀部分
             student_info = file_name.split('_')
-            if len(student_info) == 2 and student_info[1].endswith('.zip'):
+            if len(student_info) >= 2 and student_info[1] in ['男', '女']:
                 student_name = student_info[0]
-                gender = student_info[1].replace('.zip', '')  # 提取性别
+                gender = student_info[1]
 
                 if student_name == name:  # 如果名字匹配
                     file_path = data_file.file.path
                     if not os.path.exists(file_path):
-                        print(f"File not found: {file_path}")
                         return Response({'detail': '文件不存在'}, status=status.HTTP_404_NOT_FOUND)
 
                     from .data_proc import process_and_analyze_zip
@@ -195,7 +192,6 @@ def student_detail(request, name):
                     # 补充信息
                     analyze_results["name"] = student_name
                     analyze_results["gender"] = gender
-                    print(analyze_results)  # 调试日志
                     analyze_results["score"] = round(
                         (analyze_results["SDNN"] * 0.4 + 
                          analyze_results["RMSSD"] * 0.3 + 
@@ -206,9 +202,6 @@ def student_detail(request, name):
 
                     return Response(analyze_results, status=status.HTTP_200_OK)
 
-        print("No matching student found.")  # 如果未找到匹配学生
         return Response({'detail': '学生未找到'}, status=status.HTTP_404_NOT_FOUND)
     except User.DoesNotExist:
-        print(f"User {username} not found.")  # 如果用户不存在
         return Response({'detail': '用户不存在'}, status=status.HTTP_404_NOT_FOUND)
-

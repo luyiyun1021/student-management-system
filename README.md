@@ -3,9 +3,11 @@
 
 ## 前端
 安装npm，nodejs
+安装依赖
 `npm install`
+启动前端
 `npm start`
-
+默认会弹出窗口， 如果没有弹出，浏览器输入 http://localhost:3000/
 ## 后端
 安装python环境
 ```
@@ -21,10 +23,17 @@ conda install scipy
 conda install patool
 ```
 
-migrate
+migrate迁移数据库
 ```
 python manage.py makemigrations myapp
 python manage.py migrate
-```
 
-python manage.py createsuperuser
+创建管理员
+```python manage.py createsuperuser```
+根据提示创建admin，可以访问http://127.0.0.1:8000/admin管理所有数据
+
+```
+启动后端
+```python manage.py runserver```
+
+
